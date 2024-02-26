@@ -113,3 +113,6 @@ az network firewall policy rule-collection-group collection add-nat-collection \
     --translated-address "10.0.2.4" \
     --translated-port 80 \
     --collection-priority 180    
+
+# Remove Resource Group
+az group delete --name $RG --yes --no-wait
