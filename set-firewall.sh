@@ -19,7 +19,7 @@ az network vnet subnet create --name $SUBNET_NAME --resource-group $RG --vnet-na
 az network vnet subnet create -n AzureFirewallManagementSubnet -g $RG --vnet-name $VNET_NAME --address-prefixes 10.0.3.0/24
 
 # VM
-az vm create --resource-group $RG --name $VM_NAME --location $LOCATION --image Ubuntu2204 --generate-ssh-keys --subnet $SUBNET_NAME --vnet-name $VNET_NAME
+az vm create --resource-group $RG --name $VM_NAME --location $LOCATION --image Ubuntu2204 --generate-ssh-keys --subnet $SUBNET_NAME --vnet-name $VNET_NAME --public-ip-address ""
 az vm open-port --port 22 --resource-group $RG --name $VM_NAME
 
 ## Criar SSH Key e Baixar
@@ -52,7 +52,7 @@ az network vnet subnet update -n $SUBNET_NAME -g $RG --vnet-name $VNET_NAME --ad
 # Firewall rules
 ## Google HTTP/HTTPS
 export RCG=default-rule-collection-group
-az network firewall policy rule-collection-group create --name $RCG --policy-name $FW_POLICY --priority 100 --resource-group $RG
+az network firewall policy rule-collection-group create --name $RCG --policy-name $FW_POLICY --priority 200 --resource-group $RG
 az network firewall policy rule-collection-group collection add-filter-collection \
     --collection-priority 200 \
     --name allow-google \
@@ -61,9 +61,21 @@ az network firewall policy rule-collection-group collection add-filter-collectio
     --rule-type ApplicationRule \
     --protocols Http=80 Https=443 \
     --resource-group $RG \
-    --target-fqdns www.google.com \
+    --target-fqdns "*.google.com" \
     --source-addresses 10.0.2.0/24 \
     --action Allow
+
+az network firewall policy rule-collection-group collection add-filter-collection \
+    --collection-priority 250 \
+    --name allow-ubuntu \
+    --rcg-name $RCG \
+    --policy-name $FW_POLICY \
+    --rule-type ApplicationRule \
+    --protocols Http=80 Https=443 \
+    --resource-group $RG \
+    --target-fqdns "*.ubuntu.com" \
+    --source-addresses 10.0.2.0/24 \
+    --action Allow    
 
 ## DNS
 az network firewall policy rule-collection-group collection add-filter-collection \
@@ -82,11 +94,14 @@ az network firewall policy rule-collection-group collection add-filter-collectio
     --collection-priority 400
 
 ## SSH
+export DNAT_RCG=dnat-rule-collection-group
+az network firewall policy rule-collection-group create --name $DNAT_RCG --policy-name $FW_POLICY --priority 100 --resource-group $RG
+
 export FW_PIP_ADDRESS=$(az network public-ip show --name $FW_PIP -g $RG --query "ipAddress" --output tsv)
 az network firewall policy rule-collection-group collection add-nat-collection \
     -g $RG \
     --policy-name $FW_POLICY \
-    --rule-collection-group-name $RCG \
+    --rule-collection-group-name $DNAT_RCG \
     --name allow-ssh \
     --action DNAT \
     --rule-name allow-ssh-22 \
@@ -96,13 +111,13 @@ az network firewall policy rule-collection-group collection add-nat-collection \
     --ip-protocols TCP \
     --translated-address "10.0.2.4" \
     --translated-port 22 \
-    --collection-priority 180
+    --collection-priority 120
 
 ## NGINX
 az network firewall policy rule-collection-group collection add-nat-collection \
     -g $RG \
     --policy-name $FW_POLICY \
-    --rule-collection-group-name $RCG \
+    --rule-collection-group-name $DNAT_RCG \
     --name allow-nginx \
     --action DNAT \
     --rule-name allow-nginx \
@@ -112,7 +127,7 @@ az network firewall policy rule-collection-group collection add-nat-collection \
     --ip-protocols TCP \
     --translated-address "10.0.2.4" \
     --translated-port 80 \
-    --collection-priority 180    
+    --collection-priority 150    
 
 # Remove Resource Group
 az group delete --name $RG --yes --no-wait
