@@ -64,6 +64,6 @@ az vm create \
   --admin-username $ADMIN_USER \
   --generate-ssh-keys \
   --size $SKU_SIZE \
-  --custom-data ./VM/cloud-init.txt
+  --custom-data cloud-init.txt
 
 az vm auto-shutdown -g $RESOURCE_GROUP_NAME -n $VM_NAME --time $SHUTDOWN_TIME

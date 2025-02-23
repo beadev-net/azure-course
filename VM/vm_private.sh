@@ -58,7 +58,7 @@ az vm create \
   --admin-username $ADMIN_USER \
   --generate-ssh-keys \
   --size $SKU_SIZE \
-  --custom-data ./VM/cloud-init.txt
+  --custom-data cloud-init.txt
 
 # Enable Auto-Shutdown
 echo "VM created successfully!"

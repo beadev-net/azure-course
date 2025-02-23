@@ -10,7 +10,7 @@
 #### Módulo 2: Gerenciamento de Máquinas Virtuais e Rede
 - [x] - Criando e gerenciando máquinas virtuais (VMs) na Azure.
 - [x] - Configurações de rede: VNet, Sub-redes, Endereçamento IP, VPN.
-- [ ] - Topologia Hub-Spoke.
+- [x] - Topologia Hub-Spoke.
 - [x] - Firewalls e regras de segurança.
 - [ ] - Autoescalonamento e balanceamento de carga.
 - [ ] - Backup e recuperação de VMs.
