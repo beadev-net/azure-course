@@ -1,10 +1,14 @@
 export SUFFIX="demo"
 export RG="rsg${SUFFIX}"
 export LOCATION="eastus"
+# VM
 export VM_NAME="vml${SUFFIX}"
+export ADMIN_USER="azureuser"
+# Network
 export VNET_NAME="vnt${SUFFIX}"
 export SUBNET_NAME="snt${SUFFIX}"
 export ROUTE_TABLE="rtb${SUFFIX}"
+# Firewall
 export FW="fiw${SUFFIX}"
 export FW_MANAGEMENT_PIP="${FW}managementpip"
 export FW_PIP="${FW}pip"
@@ -67,7 +71,7 @@ export NIC_ID=$(az vm nic list -g $RG --vm-name $VM_NAME --query "[0].id" --outp
 az network nic update \
     --resource-group $RG \
     --id $NIC_ID \
-    --dns-servers "209.244.0.3 209.244.0.4 8.8.8.8"
+    --dns-servers "209.244.0.3" "209.244.0.4" "8.8.8.8"
 
 # Restart VM
 az vm restart --resource-group $RG --name $VM_NAME
@@ -85,7 +89,7 @@ az network public-ip create \
 
 ### Create Management Public IP for Firewall
 az network public-ip create \
-    --name $FW_M_PIP \
+    --name $FW_MANAGEMENT_PIP \
     --resource-group $RG \
     --location $LOCATION \
     --allocation-method static \
