@@ -12,8 +12,8 @@
 - [x] - Configurações de rede: VNet, Sub-redes, Endereçamento IP, VPN.
 - [x] - Topologia Hub-Spoke.
 - [x] - Firewalls e regras de segurança.
-- [ ] - Autoescalonamento e balanceamento de carga.
-- [ ] - Backup e recuperação de VMs.
+- [x] - Autoescalonamento e balanceamento de carga.
+- [x] - Backup e recuperação de VMs.
 
 #### Módulo 3: Armazenamento e Bancos de Dados na Azure
 - [ ] - Introdução aos serviços de armazenamento na Azure (Blob, File, Disk, Queue, Table).
