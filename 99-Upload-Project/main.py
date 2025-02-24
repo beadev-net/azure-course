@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, render_template
 from azure.identity import ManagedIdentityCredential
+from azure.core.pipeline.transport import RequestsTransport
 from azure.storage.blob import BlobServiceClient
 
 STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME", "stademoupload")
@@ -9,7 +10,8 @@ BLOB_SERVICE_URL = f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
 
 # Managed Identity Auth
 credential = ManagedIdentityCredential()
-blob_service_client = BlobServiceClient(account_url=BLOB_SERVICE_URL, credential=credential)
+transport = RequestsTransport(connection_verify=False)
+blob_service_client = BlobServiceClient(account_url=BLOB_SERVICE_URL, credential=credential, transport=transport)
 
 app = Flask(__name__)
 

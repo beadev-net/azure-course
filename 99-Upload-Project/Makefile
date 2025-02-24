@@ -1,5 +1,5 @@
-ACR_NAME ?= acrdemoupload
-IMAGE_NAME ?= appdemoupload:latest
+ACR_NAME ?= acrdemouploadxxx
+IMAGE_NAME ?= appdemoupload:1.0
 
 # Build Image and Push to ACR
 build:

@@ -86,7 +86,7 @@ az network lb rule create \
 ### Create Network Security Group
 echo "Creating a Network Security Group..."
 az network nsg create \
-  --resource-group $RESOURCE_GROUP_NAME \
+  --resource-group $RESOURCE_GROUP \
   --name $NSG
 
 az network nsg rule create \

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export SUFFIX="demoupload"
+export SUFFIX="demouploadxxx"
 export RESOURCE_GROUP="rsg${SUFFIX}"
 export LOCATION="eastus"
 export ACR_NAME="acr${SUFFIX}"
@@ -82,14 +82,14 @@ echo "Granting permission for Web App to pull images from ACR..."
 ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query "id" --output tsv)
 WEBAPP_ID=$(az webapp show --name $WEBAPP_NAME --resource-group $RESOURCE_GROUP --query "identity.principalId" --output tsv)
 az role assignment create \
-    --assignee $WEBAPP_ID \
+    --assignee-object-id $WEBAPP_ID \
     --scope $ACR_ID \
     --role "AcrPull"
 
 ### Granting permission for Web App to write to Blob Storage
 STORAGE_ACCOUNT_ID=$(az storage account show --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --query "id" --output tsv)
 az role assignment create \
-    --assignee $WEBAPP_ID \
+    --assignee-object-id $WEBAPP_ID \
     --scope $STORAGE_ACCOUNT_ID 
     --role "Storage Blob Data Contributor"
 
