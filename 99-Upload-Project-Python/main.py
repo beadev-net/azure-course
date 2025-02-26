@@ -1,8 +1,11 @@
 import os
+import logging
 from flask import Flask, request, render_template
 from azure.identity import ManagedIdentityCredential
 from azure.core.pipeline.transport import RequestsTransport
 from azure.storage.blob import BlobServiceClient
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+
 
 STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME", "stademoupload")
 CONTAINER_NAME = os.getenv("CONTAINER_NAME", "uploads")
@@ -15,16 +18,30 @@ blob_service_client = BlobServiceClient(account_url=BLOB_SERVICE_URL, credential
 
 app = Flask(__name__)
 
+# Application Insights Configuration
+APPINSIGHTS_CONNECTION_STRING = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")
+if not APPINSIGHTS_CONNECTION_STRING:
+    print("⚠️ APPLICATIONINSIGHTS_CONNECTION_STRING is not set!")
+else:
+    # Logging setup
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    logger.addHandler(AzureLogHandler(connection_string=APPINSIGHTS_CONNECTION_STRING))
+
 # Upload Route
 @app.route("/", methods=["GET", "POST"])
 def upload_file():
     if request.method == "POST":
         if "file" not in request.files:
-            return "Nenhum arquivo selecionado!", 400
+            message = "Nenhum arquivo selecionado!"
+            logger.warning(message)
+            return message, 400
 
         file = request.files["file"]
         if file.filename == "":
-            return "Nome do arquivo inválido!", 400
+            message = "Nome do arquivo inválido!"
+            logger.warning(message)
+            return message, 400
 
         try:
             # Upload to Blob Storage
@@ -32,11 +49,16 @@ def upload_file():
                 container=CONTAINER_NAME, blob=file.filename
             )
             blob_client.upload_blob(file.stream, overwrite=True)
+            message = f"Arquivo '{file.filename}' enviado com sucesso!"
+            logger.info(message)
 
-            return f"Arquivo '{file.filename}' enviado com sucesso!", 200
+            return message, 200
         except Exception as e:
-            return f"Erro ao enviar arquivo: {str(e)}", 500
+            message = f"Erro ao enviar arquivo: {str(e)}"
+            logger.error(message)
+            return message, 500
 
+    logger.info("Página inicial carregada!")
     return render_template("index.html")
 
 

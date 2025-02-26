@@ -2,3 +2,5 @@ flask
 gunicorn
 azure-identity
 azure-storage-blob
+opencensus-ext-azure
+opencensus-ext-flask
